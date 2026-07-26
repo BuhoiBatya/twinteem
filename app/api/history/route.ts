@@ -1,7 +1,5 @@
 import {NextResponse} from "next/server";
-import {readHistory,writeHistory} from "@/lib/db";
-import {isAdmin} from "@/lib/auth";
+import {readHistory} from "@/lib/db";
 export const runtime="nodejs";
 const valid=(value:string|null)=>/^\d{4}-\d{2}-\d{2}$/.test(value||"");
 export async function GET(req:Request){const url=new URL(req.url),now=new Date(),fallbackTo=now.toISOString().slice(0,10),fallbackFrom=new Date(now.getTime()-400*86400000).toISOString().slice(0,10),from=valid(url.searchParams.get("from"))?url.searchParams.get("from")!:fallbackFrom,to=valid(url.searchParams.get("to"))?url.searchParams.get("to")!:fallbackTo;try{return NextResponse.json(await readHistory(from,to),{headers:{"Cache-Control":"no-store"}})}catch(error){console.error(error);return NextResponse.json({configured:true,snapshots:[],error:"Не удалось загрузить историю"},{status:500})}}
-export async function POST(req:Request){if(!await isAdmin())return NextResponse.json({error:"Требуется вход администратора"},{status:401});try{const body=await req.json();if(!Array.isArray(body.snapshots)||body.snapshots.length>1000)throw new Error("invalid history");const imported=await writeHistory(body.snapshots);return NextResponse.json({ok:true,imported})}catch(error){console.error(error);return NextResponse.json({error:"Не удалось восстановить историю"},{status:500})}}
