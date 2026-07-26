@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {"dev":"next dev","build":"next build","start":"next start"},
   "dependencies": {
+    "@neondatabase/serverless":"^1.0.2",
     "@phosphor-icons/react":"2.1.10",
     "next":"15.2.8",
     "pdfmake":"0.2.20",
